@@ -1,6 +1,6 @@
 AWS_REGION=us-east-2
 AMI_ID=ami-xxxxxxxxxxxxxxxxx
-KEY_NAME=ITMO-444-544-lab-keypair
+KEY_NAME=ITMO-444-544-lab-keypair  # Generic Keypair name
 SECURITY_GROUP_ID=sg-xxxxxxxxxxxxxxxxx
 INSTANCE_TYPE=t3.micro
 INSTANCE_COUNT=1
