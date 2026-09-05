@@ -14,12 +14,12 @@ echo "Terminating instances: $IDS"
 
 aws ec2 terminate-instances \
   --instance-ids $IDS \
-  -region "$AWS_REGION"
+  --region "$AWS_REGION"
 
 echo "Waiting for instances to terminate..."
 aws ec2 wait instance-terminated \
   --instance-ids $IDS \
-  -region "$AWS_REGION"
+  --region "$AWS_REGION"
 
 echo "All instances terminated successfully."
 rm instance_ids.txt
