@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' ~/.env | xargs)
 
 echo "== S3 bucket =="
 if aws s3api head-bucket --bucket "$BUCKET_NAME" --region "$AWS_REGION" 2>/dev/null; then
@@ -45,9 +45,9 @@ aws iam add-role-to-instance-profile --instance-profile-name "$VIEWER_PROFILE_NA
 echo "Waiting 15s for IAM propagation..."
 sleep 15
 
-echo "== Building user-data from local lab03/ files =="
-UPLOADER_APP_JS_B64=$(base64 -w0 lab03/uploader-app/app.js)
-UPLOADER_PKG_JSON_B64=$(base64 -w0 lab03/uploader-app/package.json)
+echo "== Building user-data from local files =="
+UPLOADER_APP_JS_B64=$(base64 -w0 uploader-app/app.js)
+UPLOADER_PKG_JSON_B64=$(base64 -w0 uploader-app/package.json)
 
 cat > user-data-uploader.sh << EOF
 #!/bin/bash
@@ -84,8 +84,8 @@ systemctl enable uploader.service
 systemctl start uploader.service
 EOF
 
-VIEWER_APP_JS_B64=$(base64 -w0 lab03/viewer-app/app.js)
-VIEWER_PKG_JSON_B64=$(base64 -w0 lab03/viewer-app/package.json)
+VIEWER_APP_JS_B64=$(base64 -w0 viewer-app/app.js)
+VIEWER_PKG_JSON_B64=$(base64 -w0 viewer-app/package.json)
 
 cat > user-data-viewer.sh << EOF
 #!/bin/bash
