@@ -4,20 +4,39 @@ Using separate IAM roles enforces the principle of least privilege by ensuring t
 # Why embed code directly into user-data instead of using Git?
 By encoding the source code directly into the launch template's script the EC2 instance receives all neessary files during its initial boot sequence. This allows the deployment to initiaize without needing Git SSH keys, personal access tokens, or S3 read permissions.
 
+Screenshot of Apps Folder
+![Screenshot of apps folders](images/apps.png)
 
-![Screenshot of apps folders](image/apps.png)
-
+Successful Upload
 ![Successful Upload](images/successful.png)
+
+PNG Upload
 ![PNG Upload](images/pngUpload.png)
+
+Text File Too Large
 ![Text File Too large](images/tooLarge.png)
+
+Successful View
 ![Successful View](images/successfulView.png)
+
+Second File Uploaded
 ![Second File Uploaded](images/secondFile.png.png)
+
+Showing Both Templates
 ![Showing Both Templates](images/Templates.png)
+
+Second Launch Template Version
 ![Second Launch Template Version](images/secondLaunchTemplate.png)
+
+IAM Role Uploader
 ![IAM Role Uploader](images/IAMUploader.png)
+
+IAM Role Viewer
 ![IAM Role Viewer](images/IAMViewer.png)
 
-
+IP Addresses of the Apps
 ![IP Addresses of the Apps](images/appIPAddresses.png)
+
+Successful Deletion
 ![Successful Deletion](images/deleteSuccessful.png)
 
