@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' ~/.env | xargs)
 
 if [[ -f uploader_instance_id.txt && -f viewer_instance_id.txt ]]; then
   UPLOADER_ID=$(cat uploader_instance_id.txt)
