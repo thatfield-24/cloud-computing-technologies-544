@@ -1,5 +1,4 @@
 #!/bin/bash
-set -e
 export $(grep -v '^#' ~/.env | xargs)
 
 echo "== S3 bucket =="
