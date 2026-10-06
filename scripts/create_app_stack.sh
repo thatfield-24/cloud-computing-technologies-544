@@ -182,7 +182,6 @@ else
     --region "$AWS_REGION" > /dev/null
 fi
 
-echo "== Launching instances from the templates =="
 echo "== Looking up the default VPC and subnets in both AZs =="
 VPC_ID=$(aws ec2 describe-vpcs \
   --filters "Name=isDefault,Values=true" \
