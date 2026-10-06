@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--max-wait", type=float, default=600.0)
     args = parser.parse_args()
 
-    env = {**load_env(".env"), **load_env("stack_outputs.env")}
+    env = {**load_env("/cloud-computing-technologies-544/.env"), **load_env("stack_outputs.env")}
     region = env.get("AWS_REGION", "us-east-2")
     alb_dns = env.get("ALB_DNS_NAME")
     if not alb_dns:
