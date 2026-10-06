@@ -199,6 +199,7 @@ echo "== ALB security group =="
 ALB_SECURITY_GROUP_ID=$(aws ec2 describe-security-groups \
   --filters "Name=group-name,Values=$ALB_SG_NAME" "Name=vpc-id,Values=$VPC_ID" \
   --query "SecurityGroups[0].GroupId" --output text --region "$AWS_REGION" 2>/dev/null)
+
 if [ "$ALB_SECURITY_GROUP_ID" = "None" ] || [ -z "$ALB_SECURITY_GROUP_ID" ]; then
   ALB_SECURITY_GROUP_ID=$(aws ec2 create-security-group \
     --group-name "$ALB_SG_NAME" \
@@ -277,6 +278,7 @@ if [ "$ALB_ARN" = "None" ] || [ -z "$ALB_ARN" ]; then
 else
   echo "Load balancer $ALB_NAME already exists, skipping."
 fi
+
 echo "== Listeners =="
 EXISTING_PORTS=$(aws elbv2 describe-listeners --load-balancer-arn "$ALB_ARN" --region "$AWS_REGION" \
   --query "Listeners[].Port" --output text 2>/dev/null)
