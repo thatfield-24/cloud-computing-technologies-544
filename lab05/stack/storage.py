@@ -48,7 +48,7 @@ def ensure_role_and_profile(aws: AwsClients, settings: Settings, tier: Tier) -> 
     )
     with ignore_errors("EntityAlreadyExists"):
         aws.iam.create_instance_profile(InstanceProfileName=tier.profile_name)
-        profile = aws.iam.get_instance_profile(InstanceProfileName=tier.profile_name)
+    profile = aws.iam.get_instance_profile(InstanceProfileName=tier.profile_name)
     roles = [r["RoleName"] for r in profile["InstanceProfile"]["Roles"]]
     if tier.role_name not in roles:
         aws.iam.add_role_to_instance_profile(
