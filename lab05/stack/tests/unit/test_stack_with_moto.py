@@ -2,12 +2,14 @@
 Nothing here touches your AWS account, costs money, or needs credentials.
 """
 import json
+
 import pytest
 from moto import mock_aws
+
 from stack.clients import AwsClients
 from stack.config import Settings
 from stack.runner import create_stack, delete_stack
-from tests.conftest import FAKE_VALUES
+from stack.tests.conftest import FAKE_VALUES
 
 @pytest.fixture
 def env(tmp_path, monkeypatch, fake_settings):

@@ -5,6 +5,9 @@ In both cases the Boot/npm install time took up roughly 20s while the health che
 Output of ls -a lab05 (or a screenshot) showing the layout from Part 0 and section 4.
 
 Screenshot of pytest showing 19 passed.
+# Currently only 12 are passing: test_stack_with_moto.py is not running properly
+
+
 Screenshot of one "break it on purpose" experiment: the changed line and the failing test message.
 Screenshot of python create_stack.py completing, with both URLs.
 Screenshot of pytest -m integration -v with all 14 tests passing.
@@ -18,3 +21,4 @@ Python lines bought you.
 
 
 ![Lab05 Setup](images/lab05_setup.png.png)
+

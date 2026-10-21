@@ -1,7 +1,7 @@
 import pytest
 
 from stack.config import ConfigError, Settings, load_dotenv
-from tests.conftest import FAKE_VALUES
+from stack.tests.conftest import FAKE_VALUES
 
 def test_load_dotenv_skips_comments_and_blank_lines(tmp_path):
     env = tmp_path / ".env"
