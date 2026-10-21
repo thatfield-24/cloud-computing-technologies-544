@@ -1,7 +1,9 @@
 """The two entry points: build the whole stack, and tear it down."""
 from __future__ import annotations
+
 import logging
 import time
+
 from . import balancer, compute, network, scaling, storage
 from .clients import AwsClients
 from .config import Settings
@@ -42,7 +44,7 @@ def create_stack(settings: Settings, aws: AwsClients, iam_wait: int = 15,
         uploader_tg_arn=tg_arns["uploader"], viewer_tg_arn=tg_arns["viewer"],
     )
     
-    def delete_stack(settings: Settings, aws: AwsClients, keep_foundation: bool = False,
+def delete_stack(settings: Settings, aws: AwsClients, keep_foundation: bool = False,
                   sleep=time.sleep) -> None:
     """Delete by name, not by saved state, so it still works after a half-finished create."""
     log.info("== Auto Scaling Groups (this also terminates their instances) ==")
