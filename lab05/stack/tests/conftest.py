@@ -1,6 +1,7 @@
 """Shared fixtures. Unit tests use fake settings, integration tests use your real .env."""
 from pathlib import Path
 import pytest
+
 from stack.clients import AwsClients
 from stack.config import Settings
 from stack.outputs import StackOutputs

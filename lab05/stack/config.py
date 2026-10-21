@@ -88,41 +88,41 @@ class Settings:
         return {"uploader": self.uploader, "viewer": self.viewer}[name]
         
     @classmethod
-        def from_values(cls, v: dict[str, str], base_dir: str | Path = ".") -> "Settings":
-            missing = [k for k in REQUIRED_KEYS if not v.get(k)]
-            if missing:
-                raise ConfigError("Missing keys in .env: " + ", ".join(missing))
-            base = Path(base_dir)
+    def from_values(cls, v: dict[str, str], base_dir: str | Path = ".") -> "Settings":
+        missing = [k for k in REQUIRED_KEYS if not v.get(k)]
+        if missing:
+            raise ConfigError("Missing keys in .env: " + ", ".join(missing))
+        base = Path(base_dir)
 
-            def tier(prefix: str) -> Tier:
-                return Tier(
-                    name=prefix.lower(),
-                    role_name=v[f"{prefix}_ROLE_NAME"],
-                    profile_name=v[f"{prefix}_PROFILE_NAME"],
-                    lt_name=v[f"{prefix}_LT_NAME"],
-                    tg_name=v[f"{prefix}_TG_NAME"],
-                    asg_name=v[f"{prefix}_ASG_NAME"],
-                    listener_port=int(v[f"{prefix}_LISTENER_PORT"]),
-                    app_dir=base / f"{prefix.lower()}-app",
-                )
-
-            return cls(
-                region=v["AWS_REGION"],
-                ami_id=v["AMI_ID"],
-                key_name=v["KEY_NAME"],
-                instance_type=v["INSTANCE_TYPE"],
-                bucket_name=v["BUCKET_NAME"],
-                app_sg_id=v["APP_SECURITY_GROUP_ID"],
-                alb_name=v["ALB_NAME"],
-                alb_sg_name=v["ALB_SG_NAME"],
-                az_a=v["AZ_A"],
-                az_b=v["AZ_B"],
-                recovery_slo_seconds=int(v["RECOVERY_SLO_SECONDS"]),
-                uploader=tier("UPLOADER"),
-                viewer=tier("VIEWER"),
+        def tier(prefix: str) -> Tier:
+            return Tier(
+                name=prefix.lower(),
+                role_name=v[f"{prefix}_ROLE_NAME"],
+                profile_name=v[f"{prefix}_PROFILE_NAME"],
+                lt_name=v[f"{prefix}_LT_NAME"],
+                tg_name=v[f"{prefix}_TG_NAME"],
+                asg_name=v[f"{prefix}_ASG_NAME"],
+                listener_port=int(v[f"{prefix}_LISTENER_PORT"]),
+                app_dir=base / f"{prefix.lower()}-app",
             )
 
-        @classmethod
-        def from_file(cls, path: str | Path = ".env") -> "Settings":
-            path = Path(path)
-            return cls.from_values(load_dotenv(path), base_dir=path.resolve().parent)
+        return cls(
+            region=v["AWS_REGION"],
+            ami_id=v["AMI_ID"],
+            key_name=v["KEY_NAME"],
+            instance_type=v["INSTANCE_TYPE"],
+            bucket_name=v["BUCKET_NAME"],
+            app_sg_id=v["APP_SECURITY_GROUP_ID"],
+            alb_name=v["ALB_NAME"],
+            alb_sg_name=v["ALB_SG_NAME"],
+            az_a=v["AZ_A"],
+            az_b=v["AZ_B"],
+            recovery_slo_seconds=int(v["RECOVERY_SLO_SECONDS"]),
+            uploader=tier("UPLOADER"),
+            viewer=tier("VIEWER"),
+        )
+
+    @classmethod
+    def from_file(cls, path: str | Path = ".env") -> "Settings":
+        path = Path(path)
+        return cls.from_values(load_dotenv(path), base_dir=path.resolve().parent)
