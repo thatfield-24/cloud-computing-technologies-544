@@ -1,4 +1,5 @@
 import pytest
+
 from stack.config import ConfigError, Settings, load_dotenv
 from tests.conftest import FAKE_VALUES
 

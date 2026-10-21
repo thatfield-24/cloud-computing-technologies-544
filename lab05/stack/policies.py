@@ -44,5 +44,6 @@ def viewer_policy(bucket: str) -> dict:
             },
         ],
     }
-    def policy_for(tier_name: str, bucket: str) -> dict:
-        return {"uploader": uploader_policy, "viewer": viewer_policy}[tier_name](bucket)
+
+def policy_for(tier_name: str, bucket: str) -> dict:
+    return {"uploader": uploader_policy, "viewer": viewer_policy}[tier_name](bucket)
