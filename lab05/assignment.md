@@ -8,16 +8,20 @@
 
 
 
-
-
-
 Output of ls -a lab05 (or a screenshot)
 ![Lab05 Setup](images/lab05_setup.png.png)
 Screenshot of pytest showing 19 passed.
-![Pytest 19 Passed](images/19%20Passed.png)
+![Pytest 19 Passed](images/19_Passed.png)
 
 Screenshot of one "break it on purpose" experiment: the changed line and the failing test message.
+Changed Line
+![Changed Line](images/break_it.png)
+Failed Test
+![Broken Policy Message](images/brokenPolicy.png)
+
+
 Screenshot of python create_stack.py completing, with both URLs.
+
 Screenshot of pytest -m integration -v with all 14 tests passing.
 Output of pytest -m chaos -s for both tiers, and the same run failing after you tightened the SLO.
 Screenshot of python delete_stack.py completing, and a second run completing with no errors.
