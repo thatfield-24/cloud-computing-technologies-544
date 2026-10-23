@@ -3,9 +3,9 @@ from __future__ import annotations
 import base64
 import logging
 from botocore.exceptions import ClientError
-from .clients import AwsClients
-from .config import Settings, Tier
-from .util import error_code
+from clients import AwsClients
+from config import Settings, Tier
+from util import error_code
 log = logging.getLogger("stack")
 
 def _b64_file(path) -> str:

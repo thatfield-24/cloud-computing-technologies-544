@@ -2,8 +2,8 @@
 from __future__ import annotations
 import logging
 import time
-from .clients import AwsClients
-from .config import Settings, Tier
+from clients import AwsClients
+from config import Settings, Tier
 
 log = logging.getLogger("stack")
 
