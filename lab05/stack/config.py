@@ -32,7 +32,7 @@ REQUIRED_KEYS = [
 class ConfigError(Exception):
     """Raised when .env is missing keys, with a message that says which."""
 
-def load_dotenv(path: str | Path = ".env") -> dict[str, str]:
+def load_dotenv(path: str | Path = "~/.env") -> dict[str, str]:
     """Read KEY=VALUE lines into a dict. Comments and blank lines are skipped."""
     values: dict[str, str] = {}
     for raw in Path(path).read_text().splitlines():
@@ -123,6 +123,6 @@ class Settings:
         )
 
     @classmethod
-    def from_file(cls, path: str | Path = ".env") -> "Settings":
+    def from_file(cls, path: str | Path = "~/.env") -> "Settings":
         path = Path(path)
         return cls.from_values(load_dotenv(path), base_dir=path.resolve().parent)
