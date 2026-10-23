@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import time
 
-from . import balancer, compute, network, scaling, storage
+from stack import balancer, compute, network, scaling, storage
 from .clients import AwsClients
 from .config import Settings
 from .outputs import StackOutputs
