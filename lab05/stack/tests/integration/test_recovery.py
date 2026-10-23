@@ -6,7 +6,7 @@ Slow (a few minutes per tier). Run with: pytest -m chaos -s
 
 import time
 import pytest
-from tests.helpers import probe, tier_url
+from stack.tests.helpers import probe, tier_url
 
 pytestmark = pytest.mark.chaos
 

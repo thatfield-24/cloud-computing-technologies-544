@@ -5,7 +5,7 @@ Run after create_stack.py: pytest -m integration
 """
 
 import pytest
-from tests.helpers import wait_until
+from stack.tests.helpers import wait_until
 
 pytestmark = pytest.mark.integration
 

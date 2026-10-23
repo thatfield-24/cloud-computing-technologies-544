@@ -7,7 +7,7 @@ Run after the targets are healthy: pytest -m integration
 import uuid
 import pytest
 import requests
-from tests.helpers import tier_url, wait_until
+from stack.tests.helpers import tier_url, wait_until
 
 pytestmark = pytest.mark.integration
 

@@ -4,7 +4,6 @@
 
 # Pick one place where the bash version was shorter than the Python version. Write two sentences on what the extra Python lines bought you.
 
-# Your answer to Challenge 5.
 
 
 
