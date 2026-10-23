@@ -2,9 +2,9 @@
 from __future__ import annotations
 import logging
 from botocore.exceptions import ClientError
-from clients import AwsClients
-from config import Settings, Tier
-from util import error_code, ignore_errors
+from .clients import AwsClients
+from .config import Settings, Tier
+from .util import error_code, ignore_errors
 
 log = logging.getLogger("stack")
 

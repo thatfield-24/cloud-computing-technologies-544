@@ -2,9 +2,9 @@
 """Tear the stack down: the Python replacement for delete_app_stack.sh."""
 import argparse
 import logging
-from clients import AwsClients
-from config import Settings
-from runner import delete_stack
+from .clients import AwsClients
+from .config import Settings
+from .runner import delete_stack
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)

@@ -2,9 +2,9 @@
 from __future__ import annotations
 import logging
 import time
-from clients import AwsClients
-from config import Settings
-from util import ignore_errors, retry_on
+from .clients import AwsClients
+from .config import Settings
+from .util import ignore_errors, retry_on
 
 log = logging.getLogger("stack")
 

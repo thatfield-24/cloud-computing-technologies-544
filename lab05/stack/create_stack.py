@@ -2,9 +2,9 @@
 """Build the whole stack: the Python replacement for create_app_stack.sh."""
 import argparse
 import logging
-from clients import AwsClients
-from config import Settings
-from runner import create_stack
+from .clients import AwsClients
+from .config import Settings
+from .runner import create_stack
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)

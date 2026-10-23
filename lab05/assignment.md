@@ -20,7 +20,14 @@ Failed Test
 
 
 Screenshot of python create_stack.py completing, with both URLs.
+![Two URLs](images/TwoUrls.png)
 
 Screenshot of pytest -m integration -v with all 14 tests passing.
+
 Output of pytest -m chaos -s for both tiers, and the same run failing after you tightened the SLO.
+
 Screenshot of python delete_stack.py completing, and a second run completing with no errors.
+
+
+
+Because of the way my files are referenced I have to use PYTHONPATH=stack python -m stack.create_stack to run my stack

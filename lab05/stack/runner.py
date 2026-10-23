@@ -4,10 +4,10 @@ from __future__ import annotations
 import logging
 import time
 
-import balancer, compute, network, scaling, storage
-from clients import AwsClients
-from config import Settings
-from outputs import StackOutputs
+from . import balancer, compute, network, scaling, storage
+from .clients import AwsClients
+from .config import Settings
+from .outputs import StackOutputs
 
 log = logging.getLogger("stack")
 
