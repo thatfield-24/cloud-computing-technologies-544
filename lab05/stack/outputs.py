@@ -22,7 +22,7 @@ class StackOutputs:
         """Write stack_outputs.json (for Python) and stack_outputs.env (for the bash labs)."""
         directory = Path(directory)
         data = asdict(self)
-        (directory / "stack_outputs.json").write_text(json.dumps(data, indent=2) + "\n")
+        (directory / "stack" / "stack_outputs.json").write_text(json.dumps(data, indent=2) + "\n")
         env_lines = [f"{key.upper()}={value}" for key, value in data.items()]
         (directory / "stack_outputs.env").write_text("\n".join(env_lines) + "\n")
 

@@ -57,29 +57,44 @@ def ensure_role_and_profile(aws: AwsClients, settings: Settings, tier: Tier) -> 
     log.info("%s role and instance profile are ready.", tier.name)
 
 def delete_role_and_profile(aws: AwsClients, tier: Tier) -> None:
+    # 1. Disassociate and delete instance profile
     with ignore_errors("NoSuchEntity"):
         aws.iam.remove_role_from_instance_profile(
             InstanceProfileName=tier.profile_name, RoleName=tier.role_name
         )
     with ignore_errors("NoSuchEntity"):
         aws.iam.delete_instance_profile(InstanceProfileName=tier.profile_name)
+
+    # 2. Delete ALL inline policies on the role
     with ignore_errors("NoSuchEntity"):
-        aws.iam.delete_role_policy(RoleName=tier.role_name, PolicyName=tier.policy_name)
-    # A managed policy attached later (for example by a monitoring lab) would block delete_role.
+        inline_policies = aws.iam.list_role_policies(RoleName=tier.role_name).get("PolicyNames", [])
+        for policy_name in inline_policies:
+            aws.iam.delete_role_policy(RoleName=tier.role_name, PolicyName=policy_name)
+
+    # 3. Detach ALL managed policies
     with ignore_errors("NoSuchEntity"):
-        attached = aws.iam.list_attached_role_policies(RoleName=tier.role_name)
-        for policy in attached["AttachedPolicies"]:
+        attached = aws.iam.list_attached_role_policies(RoleName=tier.role_name).get("AttachedPolicies", [])
+        for policy in attached:
             aws.iam.detach_role_policy(RoleName=tier.role_name, PolicyArn=policy["PolicyArn"])
+
+    # 4. Delete the role
     with ignore_errors("NoSuchEntity"):
         aws.iam.delete_role(RoleName=tier.role_name)
     log.info("Removed %s role and instance profile.", tier.name)
 
 def delete_bucket(aws: AwsClients, settings: Settings) -> None:
     with ignore_errors("NoSuchBucket"):
-        paginator = aws.s3.get_paginator("list_objects_v2")
+        # Delete standard objects, versioned objects, and delete markers
+        paginator = aws.s3.get_paginator("list_object_versions")
         for page in paginator.paginate(Bucket=settings.bucket_name):
-            objects = [{"Key": o["Key"]} for o in page.get("Contents", [])]
+            objects = []
+            for v in page.get("Versions", []):
+                objects.append({"Key": v["Key"], "VersionId": v["VersionId"]})
+            for m in page.get("DeleteMarkers", []):
+                objects.append({"Key": m["Key"], "VersionId": m["VersionId"]})
+
             if objects:
                 aws.s3.delete_objects(Bucket=settings.bucket_name, Delete={"Objects": objects})
+
         aws.s3.delete_bucket(Bucket=settings.bucket_name)
         log.info("Deleted bucket %s", settings.bucket_name)

@@ -103,7 +103,7 @@ class Settings:
                 tg_name=v[f"{prefix}_TG_NAME"],
                 asg_name=v[f"{prefix}_ASG_NAME"],
                 listener_port=int(v[f"{prefix}_LISTENER_PORT"]),
-                app_dir=base.parent / "scripts" / f"{prefix.lower()}-app",
+                app_dir= Path.cwd() / "scripts" / f"{prefix.lower()}-app",
             )
 
         return cls(
