@@ -1,0 +1,11 @@
+{
+"ImageId": "ami-xxxxxxxxxxxxxxxxx",
+"InstanceType": "t3.micro",
+"KeyName": "KEY_NAME",
+"SecurityGroupIds": ["sg-xxxxxxxxxxxxxxxxx"],
+"IamInstanceProfile": { "Name": "itmo-544-uploader-profile" },
+"UserData": "<base64-encoded-entire-user-data-script>",
+  "TagSpecifications": [
+    { "ResourceType": "instance", "Tags": [{ "Key": "Name", "Value": "uploader-app" }] }
+  ]
+}
