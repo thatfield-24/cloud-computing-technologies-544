@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tear the stack down: the Python replacement for delete_app_stack.sh."""
+"""Tear the stack down: the Python replacement for delete_app_stack.py."""
 import argparse
 import logging
 from .clients import AwsClients

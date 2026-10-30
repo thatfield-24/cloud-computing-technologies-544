@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the whole stack: the Python replacement for create_app_stack.sh."""
+"""Build the whole stack: the Python replacement for create_app_stack.py."""
 import argparse
 import logging
 from .clients import AwsClients

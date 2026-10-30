@@ -173,7 +173,7 @@ def main():
     print()
     print(f"Done. Database endpoint: {db_host}")
     print("Automated backups are OFF (retention 0) and no final snapshot will be taken on delete.")
-    print("Next: ./create_weather_stack.sh. When testing is finished: ./delete_weather_stack.sh then ./delete_database.sh")
+    print("Next: ./create_weather_stack.py. When testing is finished: ./delete_weather_stack.py then ./delete_database.py")
 
 if __name__ == "__main__":
     main()

@@ -131,7 +131,7 @@ systemctl daemon-reload
 systemctl enable {name}.service
 systemctl start {name}.service
 """
-    filename = f"user-data-{name}.sh"
+    filename = f"user-data-{name}.py"
     with open(filename, "w") as f:
         f.write(user_data_script)
 
@@ -284,7 +284,7 @@ def main():
 
     if not os.path.exists("db_outputs.env"):
         print(
-            "db_outputs.env was not found. Run ./create_database.sh first (Part E of the lab)."
+            "db_outputs.env was not found. Run ./create_database.py first (Part E of the lab)."
         )
         sys.exit(1)
 
@@ -556,7 +556,7 @@ Environment=KEY_CACHE_SECONDS={key_cache_seconds}"""
         f.write(f"ADVISOR_TG_ARN={advisor_tg_arn}\n")
 
     # Clean up generated user data shell files
-    for tmp_file in ["user-data-weather.sh", "user-data-advisor.sh"]:
+    for tmp_file in ["user-data-weather.py", "user-data-advisor.py"]:
         if os.path.exists(tmp_file):
             try:
                 os.remove(tmp_file)

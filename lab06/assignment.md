@@ -1,5 +1,7 @@
 Output of ls -R lab06 | head -40, showing the layout from Part 0. Output of the NWS calls from Part A and one sentence on why two upstream calls are needed. 
-Output of create_database.sh, and the Step 4 output showing retention 0, not public, single-AZ, and empty snapshot and automated backup lists.
+![Layout](images/layout.png)
+
+Output of create_database.py, and the Step 4 output showing retention 0, not public, single-AZ, and empty snapshot and automated backup lists.
 
 
 Screenshot of the advisor page showing a suggestion for a zip code, and the JSON from /advice?zip=... for the same zip. Output of app_smoke_test.py with all nine checks passing.
