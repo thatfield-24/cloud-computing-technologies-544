@@ -25,6 +25,7 @@ def test_target_groups_healthy():
         assert all(state == "healthy" for state in states)
 
 
+
 def test_weather_cache_miss_then_hit():
     """Integration Test: Verify /weather?zip=60616 called twice returns cache 'miss' then 'hit'."""
     alb_dns = os.environ.get("ALB_DNS_NAME")

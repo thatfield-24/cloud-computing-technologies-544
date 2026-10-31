@@ -27,38 +27,53 @@ FAKE_VALUES = {
     "GEMINI_MODEL": "gemini-3.1-flash-lite", "KEY_CACHE_SECONDS": "60", "CONTACT_EMAIL": "student@example.com", "RECOVERY_SLO_SECONDS": "180",
 }
 
+
 def load_env_file(filepath):
-    """Reads key-value pairs from .env style files into os.environ if present."""
+    """Reads key-value pairs from .env style files into os.environ if present without overwriting active keys."""
     if os.path.exists(filepath):
         with open(filepath, "r") as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith("#") and "=" in line:
                     key, val = line.split("=", 1)
-                    os.environ[key.strip()] = val.strip("'\"")
+                    key_str = key.strip()
+                    # Do not overwrite keys already set in the active shell (e.g. AWS credentials)
+                    if key_str not in os.environ:
+                        os.environ[key_str] = val.strip("'\"")
+
 
 @pytest.fixture(scope="session", autouse=True)
-def setup_unit_test_credentials_and_env():
-    """Sets dummy AWS credentials for moto unit tests and loads stack environment variables."""
-    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-    os.environ["AWS_SECURITY_TOKEN"] = "testing"
-    os.environ["AWS_SESSION_TOKEN"] = "testing"
-    os.environ["AWS_DEFAULT_REGION"] = os.environ.get("AWS_REGION", "us-east-1")
+def setup_environment():
+    """Loads stack outputs and environment files for the session."""
+    for base in [ROOT, ROOT / "stack"]:
+        load_env_file(base / ".env")
+        load_env_file(base / "stack_outputs.env")
+        load_env_file(base / "db_outputs.env")
 
-    load_env_file(ROOT / ".env")
-    load_env_file(ROOT / "stack_outputs.env")
-    load_env_file(ROOT / "db_outputs.env")
+    os.environ["AWS_DEFAULT_REGION"] = os.environ.get("AWS_REGION", "us-east-2")
+
+
+@pytest.fixture(autouse=True)
+def configure_aws_credentials_per_test(request):
+    """Sets dummy AWS credentials ONLY for moto unit tests, preserving real credentials for integration and chaos tests."""
+    markers = [m.name for m in request.node.iter_markers()]
+    if "integration" not in markers and "chaos" not in markers:
+        os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+        os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+        os.environ["AWS_SECURITY_TOKEN"] = "testing"
+        os.environ["AWS_SESSION_TOKEN"] = "testing"
+
 
 @pytest.fixture
 def fake_settings(tmp_path):
     """Settings pointing at fake app folders for unit testing."""
     for name in ("weather-app", "advisor-app"):
         folder = tmp_path / name
-        folder.mkdir()
+        folder.mkdir(exist_ok=True)
         (folder / "app.js").write_text(f"console.log('{name}');\n")
         (folder / "package.json").write_text('{"name": "%s"}\n' % name)
     return Settings.from_values(FAKE_VALUES, base_dir=tmp_path)
+
 
 @pytest.fixture(scope="session")
 def settings():
