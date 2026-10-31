@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
     
     env = load_dotenv()
-    alb = load_dotenv("../stack_outputs.env")["ALB_DNS_NAME"]
+    alb = load_dotenv("../stack/stack_outputs.env")["ALB_DNS_NAME"]
     weather = f"http://{alb}:{env['WEATHER_LISTENER_PORT']}"
     advisor = f"http://{alb}:{env['ADVISOR_LISTENER_PORT']}"
     
