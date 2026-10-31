@@ -57,6 +57,9 @@ State should live outside of a specific instance unless something should only be
 
 
 Output of the Step 10 verification commands showing no database instance, snapshot, automated backup, load balancer or lab role remains.
+![Delete Scripts](images/delete_scripts.png)
+Keeping Gemini Key Active to create unit, chaos, integration tests. 
+![Deletion](images/deletion.png)
 
 
 ### One paragraph on why the secrets are in SSM and each is read by one role, instead of in .env or the user-data. 
