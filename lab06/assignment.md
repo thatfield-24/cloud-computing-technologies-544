@@ -2,7 +2,7 @@ Output of ls -R lab06 | head -40, showing the layout from Part 0. Output of the 
 ![Layout](images/layout.png)
 
 Output of create_database.py, and the Step 4 output showing retention 0, not public, single-AZ, and empty snapshot and automated backup lists.
-
+![Create Database Python Output](images/create_database_py.png)
 
 Screenshot of the advisor page showing a suggestion for a zip code, and the JSON from /advice?zip=... for the same zip. Output of app_smoke_test.py with all nine checks passing.
 

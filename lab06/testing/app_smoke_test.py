@@ -25,9 +25,9 @@ def get(url, timeout=30):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             body, status = resp.read().decode(), resp.status
-        except urllib.error.HTTPError as err:
+    except urllib.error.HTTPError as err:
             body, status = err.read().decode(), err.code
-        except (urllib.error.URLError, TimeoutError) as err:
+    except (urllib.error.URLError, TimeoutError) as err:
             return 0, {"error": f"no connection: {err}"}
     try:
         return status, json.loads(body)
