@@ -11,6 +11,8 @@ Usage:
   python3 chaos_test.py --tier weather
   python3 chaos_test.py --tier advisor --slo-seconds 120
   python3 chaos_test.py --scenario db-cutoff
+
+Both db_outputs.env & stack_outputs.env needing to be in the testing folder for this chaos test to run correctly.
 """
 import argparse
 import csv
