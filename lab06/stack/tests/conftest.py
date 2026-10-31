@@ -1,4 +1,5 @@
 """Shared fixtures. Unit tests use fake settings, integration tests use your real .env."""
+import os
 from pathlib import Path
 import pytest
 
@@ -20,30 +21,58 @@ FAKE_VALUES = {
     "VIEWER_ASG_NAME": "t-viewer-asg", "VIEWER_LISTENER_PORT": "8081",
     "ALB_NAME": "t-alb", "ALB_SG_NAME": "t-alb-sg",
     "AZ_A": "us-east-2a", "AZ_B": "us-east-2b", "RECOVERY_SLO_SECONDS": "180",
+    "DB_INSTANCE_ID": "itmo-444-544-weather-db", "DB_NAME": "weather", "DB_USER": "weatherapp",
+    "DB_SG_NAME": "itmo-444-544-weather-db-sg", "DB_SUBNET_GROUP_NAME": "itmo-444-544-weather-db-subnets",
+    "DB_PASSWORD_PARAM": "/itmo-444-544/db-password", "CACHE_SECONDS": "600", "GEMINI_PARAM_NAME": "/itmo-444-544/gemini-api-key",
+    "GEMINI_MODEL": "gemini-3.1-flash-lite", "KEY_CACHE_SECONDS": "60", "CONTACT_EMAIL": "student@example.com", "RECOVERY_SLO_SECONDS": "180",
 }
+
+def load_env_file(filepath):
+    """Reads key-value pairs from .env style files into os.environ if present."""
+    if os.path.exists(filepath):
+        with open(filepath, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ[key.strip()] = val.strip("'\"")
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_unit_test_credentials_and_env():
+    """Sets dummy AWS credentials for moto unit tests and loads stack environment variables."""
+    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    os.environ["AWS_SECURITY_TOKEN"] = "testing"
+    os.environ["AWS_SESSION_TOKEN"] = "testing"
+    os.environ["AWS_DEFAULT_REGION"] = os.environ.get("AWS_REGION", "us-east-1")
+
+    load_env_file(ROOT / ".env")
+    load_env_file(ROOT / "stack_outputs.env")
+    load_env_file(ROOT / "db_outputs.env")
 
 @pytest.fixture
 def fake_settings(tmp_path):
-    """Settings pointing at two tiny fake app folders, so no real files are needed."""
-    for name in ("uploader-app", "viewer-app"):
+    """Settings pointing at fake app folders for unit testing."""
+    for name in ("weather-app", "advisor-app"):
         folder = tmp_path / name
         folder.mkdir()
         (folder / "app.js").write_text(f"console.log('{name}');\n")
         (folder / "package.json").write_text('{"name": "%s"}\n' % name)
     return Settings.from_values(FAKE_VALUES, base_dir=tmp_path)
 
-# ---- fixtures for tests that talk to your deployed stack ----
 @pytest.fixture(scope="session")
 def settings():
     return Settings.from_file(ROOT / ".env")
 
+
 @pytest.fixture(scope="session")
 def aws(settings):
     return AwsClients.create(settings.region)
+
 
 @pytest.fixture(scope="session")
 def outputs():
     try:
         return StackOutputs.load(ROOT)
     except FileNotFoundError:
-        pytest.skip("stack_outputs.json not found. Run python create_stack.py first.")
+        pytest.skip("stack_outputs.env not found. Deploy stack before running integration tests.")
