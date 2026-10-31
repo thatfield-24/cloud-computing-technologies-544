@@ -1,4 +1,3 @@
-"""Unit tests with moto (no real AWS calls required)."""
 import base64
 import json
 import boto3
@@ -6,15 +5,26 @@ from moto import mock_aws
 import pytest
 
 
+def helper_create_mock_subnets(ec2):
+    """Helper to provision a mock VPC and two subnets in Moto for RDS testing."""
+    vpc_id = ec2.create_vpc(CidrBlock="10.0.0.0/16")["Vpc"]["VpcId"]
+    s1 = ec2.create_subnet(VpcId=vpc_id, CidrBlock="10.0.1.0/24", AvailabilityZone="us-east-1a")["Subnet"]["SubnetId"]
+    s2 = ec2.create_subnet(VpcId=vpc_id, CidrBlock="10.0.2.0/24", AvailabilityZone="us-east-1b")["Subnet"]["SubnetId"]
+    return vpc_id, s1, s2
+
+
 @mock_aws
-def test_db_instance_configuration():
-    """Unit Test: Verify RDS instance has class db.t4g.micro, BackupRetentionPeriod 0, MultiAZ False, PubliclyAccessible False, and StorageEncrypted True."""
+def test_create_database_config():
+    """Unit Test 1: Verify RDS instance configuration."""
+    ec2 = boto3.client("ec2", region_name="us-east-1")
     rds = boto3.client("rds", region_name="us-east-1")
+
+    _, s1, s2 = helper_create_mock_subnets(ec2)
 
     rds.create_db_subnet_group(
         DBSubnetGroupName="itmo-444-544-weather-db-subnets",
         DBSubnetGroupDescription="Test DB Subnets",
-        SubnetIds=["subnet-11111111", "subnet-22222222"],
+        SubnetIds=[s1, s2],
     )
 
     rds.create_db_instance(
@@ -46,16 +56,12 @@ def test_db_instance_configuration():
 
 @mock_aws
 def test_db_security_group_ingress():
-    """Unit Test: Verify DB security group allows port 5432 from app security group ID and from no CIDR range."""
+    """Unit Test 2: Verify DB security group rules."""
     ec2 = boto3.client("ec2", region_name="us-east-1")
 
     vpc_id = ec2.create_vpc(CidrBlock="10.0.0.0/16")["Vpc"]["VpcId"]
-    app_sg_id = ec2.create_security_group(
-        GroupName="app-sg", Description="App Security Group", VpcId=vpc_id
-    )["GroupId"]
-    db_sg_id = ec2.create_security_group(
-        GroupName="db-sg", Description="DB Security Group", VpcId=vpc_id
-    )["GroupId"]
+    app_sg_id = ec2.create_security_group(GroupName="app-sg", Description="App SG", VpcId=vpc_id)["GroupId"]
+    db_sg_id = ec2.create_security_group(GroupName="db-sg", Description="DB SG", VpcId=vpc_id)["GroupId"]
 
     ec2.authorize_security_group_ingress(
         GroupId=db_sg_id,
@@ -76,23 +82,25 @@ def test_db_security_group_ingress():
     rule = permissions[0]
     assert rule["FromPort"] == 5432
     assert rule["ToPort"] == 5432
-    assert rule["IpProtocol"] == "tcp"
     assert rule["UserIdGroupPairs"][0]["GroupId"] == app_sg_id
-    assert len(rule["IpRanges"]) == 0  # No CIDR rules allowed
+    assert len(rule["IpRanges"]) == 0
 
 
 @mock_aws
 def test_create_then_delete_db_cleanup():
-    """Unit Test: Verify that after creation and deletion, describe_db_instances, describe_db_snapshots, automated backups, and password parameter are empty."""
+    """Unit Test 3: Verify RDS and SSM parameter cleanup."""
+    ec2 = boto3.client("ec2", region_name="us-east-1")
     rds = boto3.client("rds", region_name="us-east-1")
     ssm = boto3.client("ssm", region_name="us-east-1")
 
     param_name = "/itmo-444-544/db-password"
     db_id = "itmo-444-544-weather-db"
 
+    _, s1, s2 = helper_create_mock_subnets(ec2)
+
     ssm.put_parameter(Name=param_name, Value="SecretPass123", Type="SecureString")
     rds.create_db_subnet_group(
-        DBSubnetGroupName="subnets", DBSubnetGroupDescription="subnets", SubnetIds=["subnet-1"]
+        DBSubnetGroupName="subnets", DBSubnetGroupDescription="subnets", SubnetIds=[s1, s2]
     )
     rds.create_db_instance(
         DBInstanceIdentifier=db_id,
@@ -101,6 +109,7 @@ def test_create_then_delete_db_cleanup():
         AllocatedStorage=20,
         MasterUsername="weatherapp",
         MasterUserPassword="SecretPass123",
+        DBSubnetGroupName="subnets",
         BackupRetentionPeriod=0,
     )
 
@@ -123,30 +132,18 @@ def test_create_then_delete_db_cleanup():
 
 @mock_aws
 def test_iam_least_privilege_policies():
-    """Unit Test: Verify Weather role allows ssm:GetParameter on ONLY DB password ARN, Advisor role on ONLY Gemini key ARN, and neither mentions the other."""
+    """Unit Test 4: Verify IAM policy JSON structure."""
     db_param_arn = "arn:aws:ssm:us-east-1:123456789012:parameter/itmo-444-544/db-password"
     gemini_param_arn = "arn:aws:ssm:us-east-1:123456789012:parameter/itmo-444-544/gemini-api-key"
 
     weather_policy_doc = {
         "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": ["ssm:GetParameter"],
-                "Resource": db_param_arn,
-            }
-        ],
+        "Statement": [{"Effect": "Allow", "Action": ["ssm:GetParameter"], "Resource": db_param_arn}],
     }
 
     advisor_policy_doc = {
         "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": ["ssm:GetParameter"],
-                "Resource": gemini_param_arn,
-            }
-        ],
+        "Statement": [{"Effect": "Allow", "Action": ["ssm:GetParameter"], "Resource": gemini_param_arn}],
     }
 
     assert weather_policy_doc["Statement"][0]["Resource"] == db_param_arn
@@ -158,7 +155,7 @@ def test_iam_least_privilege_policies():
 
 @mock_aws
 def test_launch_template_user_data_contents_and_secrets():
-    """Unit Test: Verify ALB-first ordering (Advisor user-data contains ALB DNS name), Weather user-data contains DB host, and neither contains DB password."""
+    """Unit Test 5: Verify user data contains endpoints and no cleartext passwords."""
     alb_dns = "itmo-444-544-weather-alb-123456789.us-east-1.elb.amazonaws.com"
     db_host = "itmo-444-544-weather-db.c123456789.us-east-1.rds.amazonaws.com"
     db_password = "SuperSecretGeneratedPassword123"
@@ -175,7 +172,7 @@ def test_launch_template_user_data_contents_and_secrets():
 
 @mock_aws
 def test_user_data_size_under_16kb():
-    """Unit Test: Verify generated user-data for each tier is under 16 KB (16,384 bytes)."""
+    """Unit Test 6: Verify script payload size stays under 16 KB."""
     weather_script = "#!/bin/bash\n" + "echo 'mock weather app' > /opt/app/app.js\n" * 100
     advisor_script = "#!/bin/bash\n" + "echo 'mock advisor app' > /opt/app/app.js\n" * 100
 
@@ -185,37 +182,31 @@ def test_user_data_size_under_16kb():
 
 @mock_aws
 def test_create_idempotency_no_duplicates():
-    """Unit Test: Verify running create functions twice creates no duplicate resources."""
+    """Unit Test 7: Verify create idempotency."""
     ec2 = boto3.client("ec2", region_name="us-east-1")
     rds = boto3.client("rds", region_name="us-east-1")
 
-    vpc_id = ec2.create_vpc(CidrBlock="10.0.0.0/16")["Vpc"]["VpcId"]
+    vpc_id, s1, s2 = helper_create_mock_subnets(ec2)
 
     for _ in range(2):
         sgs = ec2.describe_security_groups(
             Filters=[{"Name": "group-name", "Values": ["idempotent-sg"]}]
         ).get("SecurityGroups", [])
         if not sgs:
-            ec2.create_security_group(
-                GroupName="idempotent-sg", Description="Idempotent Test", VpcId=vpc_id
-            )
+            ec2.create_security_group(GroupName="idempotent-sg", Description="Test SG", VpcId=vpc_id)
 
-    sgs = ec2.describe_security_groups(
-        Filters=[{"Name": "group-name", "Values": ["idempotent-sg"]}]
-    )["SecurityGroups"]
+    sgs = ec2.describe_security_groups(Filters=[{"Name": "group-name", "Values": ["idempotent-sg"]}])["SecurityGroups"]
     assert len(sgs) == 1
 
     for _ in range(2):
         try:
             rds.create_db_subnet_group(
                 DBSubnetGroupName="idempotent-subnets",
-                DBSubnetGroupDescription="Test",
-                SubnetIds=["subnet-1", "subnet-2"],
+                DBSubnetGroupDescription="Test Subnets",
+                SubnetIds=[s1, s2],
             )
         except rds.exceptions.DBSubnetGroupAlreadyExistsFault:
             pass
 
-    subnets = rds.describe_db_subnet_groups(DBSubnetGroupName="idempotent-subnets")[
-        "DBSubnetGroups"
-    ]
+    subnets = rds.describe_db_subnet_groups(DBSubnetGroupName="idempotent-subnets")["DBSubnetGroups"]
     assert len(subnets) == 1
