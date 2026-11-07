@@ -15,7 +15,7 @@ resource "aws_dynamodb_table" "demo" {
   name = "itmo-444-544-terraform-demo"
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "id"
-  
+  tags = { Purpose = "first-taste" }
   attribute {
     name = "id"
     type = "S"

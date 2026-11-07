@@ -1,6 +1,11 @@
 Output of terraform version and aws sts get-caller-identity (hide the account number).
 ![Terraform version](images/terraform_version.png)
 Part A: the plan before the first apply, the second apply showing No changes , the in-place update plan ( ~ ) and the replacement plan ( -/+ ), with a sentence on why -/+ is the one to be careful about.
+![Terraform Plan](images/terraform_plan.png)
+First Apply
+![Terraform First Apply](images/terraform_apply.png)
+Second Apply
+![Terraform Second Apply](images/terraform_second.png)
 
 Output of terraform fmt , terraform validate and the last lines of terraform plan showing the number of resources to add.
 
