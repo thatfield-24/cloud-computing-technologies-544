@@ -1,11 +1,20 @@
 Output of terraform version and aws sts get-caller-identity (hide the account number).
 ![Terraform version](images/terraform_version.png)
+
 Part A: the plan before the first apply, the second apply showing No changes , the in-place update plan ( ~ ) and the replacement plan ( -/+ ), with a sentence on why -/+ is the one to be careful about.
+First Terraform Plan
 ![Terraform Plan](images/terraform_plan.png)
 First Apply
 ![Terraform First Apply](images/terraform_apply.png)
 Second Apply
 ![Terraform Second Apply](images/terraform_second.png)
+In Place Plan
+![Inplace Plan](images/in_place_plan.png)
+Replacement Plan
+![Replacement Plan](images/replace_plan.png)
+
+The -/+ is important to look at because these are the changes that are beind made. In this case since we are changing key components of the terraform plan all the previous file components are being removed (-) and are being 'recreated' showing (+) these signs help indicate what is actually changing. The ~ shows for a few things like the tags and the arn that will be the same regardless.clear
+
 
 Output of terraform fmt , terraform validate and the last lines of terraform plan showing the number of resources to add.
 

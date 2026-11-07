@@ -30,7 +30,7 @@ const SYSTEM_PROMPT =
   'Reply in at most two plain sentences, with no markdown and no lists. Use only the data provided.';
 
   // Only the zip code and the forecast go to the AI service. Nothing about the user does.
-function buildPrompt(w) {
+  function buildPrompt(w) {
   const f = w.forecast;
   return [
     `Zip code: ${w.zip} (${w.city}, ${w.state})`,
@@ -38,19 +38,19 @@ function buildPrompt(w) {
     `Temperature: ${f.temperature} ${f.temperatureUnit}`,
     `Conditions: ${f.shortForecast}`,
     `Wind: ${f.windSpeed}`,
-    `Chance of precipitation: ${f.precipitationChance === null ? 'unknown' : f.precipitationChance + ' percent'}`,
+    `Chance of precipitation: ${f.precipitationChance === null ? 'unknown' : f.precipitationChance + 'percent'}`,
   ].join('\n');
-}
+  }
 
-async function askGemini(prompt) {
-  const key = await getApiKey();
-  const res = await fetch(`${GEMINI_API_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 300 },
+  async function askGemini(prompt) {
+    const key = await getApiKey();
+    const res = await fetch(`${GEMINI_API_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 300 },
     }),
     signal: AbortSignal.timeout(15000),
   });
@@ -66,60 +66,60 @@ async function askGemini(prompt) {
     const err = new Error('gemini_empty_response');
     err.status = 200;
     throw err;
-  }return text;
+  }
+  return text;
 }
 
 // Used when the AI service is unavailable, rate limited, or the key is wrong.
-function fallbackAdvice(f) {
-  const t = f.temperature;
-  let base;
-  if (t <= 32) base = 'Wear a heavy coat, a hat and gloves.';
-  else if (t <= 50) base = 'Wear a warm jacket and long pants.';
-  else if (t <= 68) base = 'Wear a light jacket or a sweater over long sleeves.';
-  else if (t <= 80) base = 'A t-shirt and light pants or shorts will be fine.';
-  else base = 'Wear light, breathable clothes and bring water and sunscreen.';
-  const wet = (f.precipitationChance || 0) >= 40 || /rain|shower|storm|snow/i.test(f.shortForecast);
-  return wet ? `${base} Bring an umbrella or a waterproof jacket.` : base;
-}
-
-const escapeHtml = (s) =>
-  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-// Shared by the web page and the JSON endpoint. Returns { status, body }.
-async function getAdvice(zip) {
-  if (!/^\d{5}$/.test(zip)) {
-    log('advice_rejected', { reason: 'invalid_zip' });
-    return { status: 400, body: { error: 'invalid_zip', message: 'Give a 5 digit US zip code.' } };
+  function fallbackAdvice(f) {
+    const t = f.temperature;
+    let base;
+    if (t <= 32) base = 'Wear a heavy coat, a hat and gloves.';
+    else if (t <= 50) base = 'Wear a warm jacket and long pants.';
+    else if (t <= 68) base = 'Wear a light jacket or a sweater over long sleeves.';
+    else if (t <= 80) base = 'A t-shirt and light pants or shorts will be fine.';
+    else base = 'Wear light, breathable clothes and bring water and sunscreen.';
+    const wet = (f.precipitationChance || 0) >= 40 || /rain|shower|storm|snow/i.test(f.shortForecast);
+    return wet ? `${base} Bring an umbrella or a waterproof jacket.` : base;
   }
-  const started = Date.now();
-  log('advice_request', { zip });
 
-  let weather;
-  try {
-    const res = await fetch(`${WEATHER_URL}/weather?zip=${zip}`, { signal: AbortSignal.timeout(20000) });
+  const escapeHtml = (s) =>
+    String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // Shared by the web page and the JSON endpoint. Returns { status, body }.
+  async function getAdvice(zip) {
+    if (!/^\d{5}$/.test(zip)) {
+      log('advice_rejected', { reason: 'invalid_zip' });
+      return { status: 400, body: { error: 'invalid_zip', message: 'Give a 5 digit US zip code.' } };
+    }
+    const started = Date.now();
+    log('advice_request', { zip });
+    let weather;
+    try {
+      const res = await fetch(`${WEATHER_URL}/weather?zip=${zip}`, { signal: AbortSignal.timeout(20000) });
     if (res.status === 400 || res.status === 404) {
       log('advice_rejected', { reason: 'weather_' + res.status, zip });
       return { status: res.status, body: await res.json() };
     }
     if (!res.ok) throw new Error('weather_status_' + res.status);
-    weather = await res.json();
-  } catch (err) {
-    log('weather_call_failed', { zip, message: err.message });
-    return { status: 502, body: { error: 'weather_service_unavailable' } };
-  }
-
-  let advice, source;
-  try {
-    advice = await askGemini(buildPrompt(weather));
-    source = 'gemini';
+      weather = await res.json();
     } catch (err) {
-      log('gemini_error', { zip, status: err.status || 0, reason: err.name === 'TimeoutError' ? 'timeout' : err.message });
+      log('weather_call_failed', { zip, message: err.message });
+      return { status: 502, body: { error: 'weather_service_unavailable' } };
+    }
+
+    let advice, source;
+    try {
+      advice = await askGemini(buildPrompt(weather));
+      source = 'gemini';
+    } catch (err) {
+      log('gemini_error', { zip, status: err.status || 0, reason: err.name === 'TimeoutError' ? 'timeout' :err.message });
       advice = fallbackAdvice(weather.forecast);
       source = 'fallback';
     }
-    
+
     log('advice_success', { zip, source, ms: Date.now() - started });
-    return { status: 200, body: { ...weather, advice, source, model: source === 'gemini' ? GEMINI_MODEL : null } };
+    return { status: 200, body: { ...weather, advice, source, model: source === 'gemini' ? GEMINI_MODEL : null } }
   }
 
   app.get('/advice', async (req, res) => {
@@ -133,18 +133,19 @@ async function getAdvice(zip) {
         <button type="submit">What should I wear?</button>
       </form>`;
     let result = '';
-    if (req.query.zip) {
+    if  (req.query.zip) {
       const { status, body } = await getAdvice(String(req.query.zip));
       if (status === 200) {
         const f = body.forecast;
         result = `<h2>${escapeHtml(body.city)}, ${escapeHtml(body.state)} ${escapeHtml(body.zip)}</h2>
-          <p>${escapeHtml(f.name)}: ${escapeHtml(f.temperature)} ${escapeHtml(f.temperatureUnit)}, ${escapeHtml(f.shortForecast)}, wind${escapeHtml(f.windSpeed)}</p>
+          <p>${escapeHtml(f.name)}: ${escapeHtml(f.temperature)} ${escapeHtml(f.temperatureUnit)},${escapeHtml(f.shortForecast)}, wind ${escapeHtml(f.windSpeed)}</p>
           <p><strong>${escapeHtml(body.advice)}</strong></p>
           <p><small>Suggestion source: ${escapeHtml(body.source)}</small></p>`;
-      } else {
-        result = `<p>Sorry: ${escapeHtml(body.error)}</p>`;
-      }
+    } else {
+      result = `<p>Sorry: ${escapeHtml(body.error)}</p>`;
     }
-    res.send(`<h1>Weather Advisor</h1>${form}${result}`);
-  });
-  app.listen(PORT, () => log('advisor_started', { port: PORT, model: GEMINI_MODEL }));
+  }
+  res.send(`<h1>Weather Advisor</h1>${form}${result}`);
+});
+
+app.listen(PORT, () => log('advisor_started', { port: PORT, model: GEMINI_MODEL }));
