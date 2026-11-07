@@ -12,7 +12,7 @@ In Place Plan
 ![Inplace Plan](images/in_place_plan.png)
 Replacement Plan
 ![Replacement Plan](images/replace_plan.png)
-
+## Why -/+ can be worrisome
 The -/+ is important to look at because these are the changes that are beind made. In this case since we are changing key components of the terraform plan all the previous file components are being removed (-) and are being 'recreated' showing (+) these signs help indicate what is actually changing. The ~ shows for a few things like the tags and the arn that will be the same regardless.clear
 
 
@@ -51,15 +51,15 @@ Steps 4 and 5: the plan for cache_seconds = 60 , the instance refresh status and
 ## Drift
 ![Drift](imamges/drift.png)
 ## Drift Sentence
-
+In lab06 changing the health check path would go completely unnoticed but because Terraform compares files it showed that the file path was changed from /nope to / and restored and enforced the correct path for hte health check.
 
 Steps 6 and 7: the IAM simulator results with your sentence about the advisor tier, and the No changes plan, the grep -c count of 0 and your sentences about ignore_changes.
 ## IAM Simulator
 ![IAM Simulator](images/IAM_Simulator.png)
 ## No Changes
 ![Step 7 No Changes](images/step7_no_changes.png)
-## write two sentences on what the next terraform apply would do to your key, and what would then be in the state.
-
+## Write two sentences on what the next terraform apply would do to your key, and what would then be in the state.
+The next terraform apply would overwrite the real Gemini API key in SSM parameter store with the initial placeholder value ("not-set-yet") defined in your Terraform code. As a result, the placeholder string "not-set-yet" would replace the key in the Terraform state file, completely wiping the live key from both AWS and state.   
 
 Steps 8 and 9: the fallback answers with the gemini_error journal line and your sentence about silent fallback, and the completed Lambda table with your answer to question 4.
 ## Fallback
