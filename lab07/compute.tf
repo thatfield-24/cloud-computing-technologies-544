@@ -53,7 +53,7 @@ resource "aws_launch_template" "tier" {
 resource "aws_autoscaling_group" "tier" {
   for_each = local.tiers
 
-  name                      = "$  {var.name_prefix}-${each.key}-asg"
+  name                      = "${var.name_prefix}-${each.key}-asg"
   min_size                  = 1
   max_size                  = 1
   desired_capacity          = 1
