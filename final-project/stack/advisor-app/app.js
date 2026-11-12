@@ -26,7 +26,7 @@ async function getApiKey() {
 }
 
 const SYSTEM_PROMPT =
-  'You give a short clothing suggestion for the weather you are given. ' +
+  'You give a short clothing suggestion for the weather and gender you are given. ' +
   'Reply in at most two plain sentences, with no markdown and no lists. Use only the data provided.';
 
   // Only the zip code and the forecast go to the AI service. Nothing about the user does.
